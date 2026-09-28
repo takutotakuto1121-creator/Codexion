@@ -1,6 +1,6 @@
 #include "codexion.h"
 
-int	is_valid_numbers(const char **av)
+int	is_valid_numbers(char **av)
 {
 	int i;
 	int	j;
@@ -33,7 +33,7 @@ int	validate_details(t_args *args)
 	}
 	if (args->number_of_coders > NUM_THREAD - 1)
 	{
-		print_error("number of coders should be less than number of threads\n")
+		print_error("number of coders should be less than number of threads\n");
 	}
 	if (strcmp(args->scheduler, "fifo") != 0
 		&& strcmp(args->scheduler, "edf") != 0)
@@ -44,7 +44,7 @@ int	validate_details(t_args *args)
 	return (0);
 }
 
-int	set_args(t_args *args, const char **av)
+int	set_args(t_args *args, char **av)
 {
 	if (is_valid_numbers(av) == ERROR)
 	{

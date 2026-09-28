@@ -3,6 +3,7 @@
 ```bash
 sysctl hw.physicalcpu hw.logicalcpu
 ```
+出てきたスレッド数をNUM_THREADに定義する。
 
 ## 実行時間の計算
 ### gettimeofday()
@@ -180,18 +181,39 @@ int pthread_cond_destroy(pthread_cond_t *cond);
 ```
 cond: 条件変数へのポインタ
 
-## 設計メモ
-### パース & バリデーション
-まあ普通に
 
+
+## 設計メモ
 ### マクロs
 1. NUM_THREAD
 2. ERROR
 
 ### structures
 1. t_args
-2. 
+2. t_coder
 
-### 
+### パース & バリデーション
+まあ普通に
+
+### monitorスレッド
+whileで常に監視
+1. burnoutテェック: 全こーだーが最後にコンパイルした時間を見て周り、現在時刻との差が`time_to_born_out`を超えていないかを確認
+
+### codersスレッド
+
+### デッドロック
+
+## 剰余演算による配列の循環
+配列の要素数をNとすると、インデックスにindex % Nを指定する。
+すると、インデックスが0 ~ N-1 の範囲を超えても循環してくれる。
+
+### ちょっと全体像が掴めん
+最小限から進化させてく
+1. monitorなし、coder１人で実装
+2. coderを複数人に
+3. monitorの追加
+4. fifo, edf
+5. 諸々最終調整
+
 
 
