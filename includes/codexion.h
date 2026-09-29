@@ -18,6 +18,18 @@
 #define False 0
 # endif
 
+typedef struct      s_node
+{
+    int             data;
+    struct s_node   *next;
+}                   t_node;
+
+typedef struct      s_queue
+{
+    t_node          *front;
+    t_node          *rear;
+}                   t_queue;
+
 typedef struct      s_args
 {
     int             number_of_coders;
@@ -30,12 +42,15 @@ typedef struct      s_args
     char            scheduler[5];
     long long       start_time;
     int             is_finished;
+    t_queue         *queue;
+    pthread_mutex_t queue_lock;
     pthread_mutex_t print_lock;
 }                   t_args;
 
 typedef struct      s_dongle
 {
     int             id;
+    long long       cooldown_until;
     pthread_mutex_t lock;
 }                   t_dongle;
 
@@ -57,6 +72,9 @@ int	        set_args(t_args *args, char **av);
 /* src/coder.c */
 void	    print_status(t_coder *coder, char *status, pthread_mutex_t *mutex);
 void	    *coder_routine(void *arg);
+void	    take_dongle_fifo(t_coder *coder);
+void	    take_dongle_edf(t_coder *coder);
+
 
 /* src/main.c */
 int	        codexion(t_args *args);
@@ -69,3 +87,12 @@ int	        ft_strlen(const char *str);
 void	    print_error(const char *str);
 char	    *ft_strcpy(char *dest, char *src);
 long long	get_current_time_ms(void);
+int	        get_id_close_to_burnout(t_coder *coder);
+
+/* utils/utils2_queue.c */
+void	    init_queue(t_queue *queue);
+int		    is_empty_queue(t_queue *queue);
+void	    enqueue(t_queue *queue, int data);
+int	        dequeue(t_queue *queue);
+int	        detect_queue_min(t_queue *queue);
+int	        pull_specific_data(t_queue *queue, int data);

@@ -12,8 +12,12 @@ int	codexion(t_args *args)
 	threads = malloc(sizeof(pthread_t) * (args->number_of_coders + 1));
 
 	pthread_mutex_init(&args->print_lock, NULL);
+	pthread_mutex_init(&args->queue_lock, NULL);
+	args->queue = malloc(sizeof(t_queue));
+	init_queue(args->queue);
 	args->start_time = get_current_time_ms();
 	args->is_finished = False;
+
 
 	i = 0;
 	while (i < args->number_of_coders)
@@ -37,6 +41,14 @@ int	codexion(t_args *args)
 
 	pthread_create(&threads[i], NULL, monitor_routine, coder);
 	pthread_join(threads[i], NULL);
+
+	i = 0;
+	while(i < args->number_of_coders)
+	{
+		pthread_join(threads[i], NULL);
+		i++;
+	}
+
 	return (0);
 }
 

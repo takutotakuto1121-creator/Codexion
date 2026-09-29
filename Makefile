@@ -5,7 +5,8 @@ SRCS 	= src/coder.c\
 		  src/main.c\
 		  src/monitor.c\
 		  src/parse.c\
-		  utils/utils1.c
+		  utils/utils1.c\
+		  utils/utils2_queue.c
 OBJS 	= $(SRCS:.c=.o)
 
 all: $(NAME)
