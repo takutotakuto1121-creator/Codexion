@@ -31,10 +31,6 @@ int	validate_details(t_args *args)
 		print_error("number of coders shoule be more than 1\n");
 		return (ERROR);
 	}
-	if (args->number_of_coders > NUM_THREAD - 1)
-	{
-		print_error("number of coders should be less than number of threads\n");
-	}
 	if (strcmp(args->scheduler, "fifo") != 0
 		&& strcmp(args->scheduler, "edf") != 0)
 	{
@@ -56,7 +52,7 @@ int	set_args(t_args *args, char **av)
 	args->time_to_compile = atoi(av[3]);
 	args->time_to_debug = atoi(av[4]);
 	args->time_to_refactor = atoi(av[5]);
-	args->number_of_copiles_required = atoi(av[6]);
+	args->number_of_compiles_required = atoi(av[6]);
 	args->dongle_cooldown = atoi(av[7]);
 	ft_strcpy(args->scheduler, av[8]);
 	if (validate_details(args) == ERROR)

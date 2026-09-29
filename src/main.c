@@ -9,10 +9,11 @@ int	codexion(t_args *args)
 
 	coder = malloc(sizeof(t_coder) * args->number_of_coders);
 	dongle = malloc(sizeof(t_dongle) * args->number_of_coders);
-	threads = malloc(sizeof(pthread_t) * args->number_of_coders);
+	threads = malloc(sizeof(pthread_t) * (args->number_of_coders + 1));
 
 	pthread_mutex_init(&args->print_lock, NULL);
 	args->start_time = get_current_time_ms();
+	args->is_finished = False;
 
 	i = 0;
 	while (i < args->number_of_coders)
@@ -26,15 +27,16 @@ int	codexion(t_args *args)
 	while (i < args->number_of_coders)
 	{
 		coder[i].id = i + 1;
+		coder[i].num_compiled = 0;
+		coder[i].last_time_compiled = args->start_time;
 		coder[i].args = args;
 		coder[i].dongle = dongle;
 		pthread_create(&threads[i], NULL, coder_routine, &coder[i]);
 		i++;
 	}
 
-	i = 0;
-	while (i < args->number_of_coders)
-		pthread_join(threads[i++], NULL);
+	pthread_create(&threads[i], NULL, monitor_routine, coder);
+	pthread_join(threads[i], NULL);
 	return (0);
 }
 

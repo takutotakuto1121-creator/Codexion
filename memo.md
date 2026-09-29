@@ -3,7 +3,7 @@
 ```bash
 sysctl hw.physicalcpu hw.logicalcpu
 ```
-出てきたスレッド数をNUM_THREADに定義する。
+出てきたスレッド数をNUM_THREADに定義する。←いらんかったわうまいことやってくれるらしい
 
 ## 実行時間の計算
 ### gettimeofday()
@@ -185,7 +185,6 @@ cond: 条件変数へのポインタ
 
 ## 設計メモ
 ### マクロs
-1. NUM_THREAD
 2. ERROR
 
 ### structures
@@ -198,6 +197,7 @@ cond: 条件変数へのポインタ
 ### monitorスレッド
 whileで常に監視
 1. burnoutテェック: 全こーだーが最後にコンパイルした時間を見て周り、現在時刻との差が`time_to_born_out`を超えていないかを確認
+2. number_of_compiles_requiredチェック
 
 ### codersスレッド
 
