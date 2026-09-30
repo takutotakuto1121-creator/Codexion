@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils2_queue.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tsugimot <tsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/30 19:31:19 by tsugimot          #+#    #+#             */
+/*   Updated: 2026/09/30 19:31:21 by tsugimot         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 void	init_queue(t_queue *queue)
@@ -6,7 +18,7 @@ void	init_queue(t_queue *queue)
 	queue->rear = NULL;
 }
 
-int		is_empty_queue(t_queue *queue)
+int	is_empty_queue(t_queue *queue)
 {
 	return (queue->front == NULL);
 }
@@ -17,7 +29,7 @@ void	enqueue(t_queue *queue, int data)
 
 	node = (t_node *)malloc(sizeof(t_node));
 	if (!node)
-		return;
+		return ;
 	node->data = data;
 	node->next = NULL;
 	if (is_empty_queue(queue))
@@ -34,12 +46,12 @@ void	enqueue(t_queue *queue, int data)
 
 int	dequeue(t_queue *queue)
 {
-	t_node *node;
-	t_node *tmp;
+	t_node	*node;
+	t_node	*tmp;
 	int		data;
 
 	if (is_empty_queue(queue))
-		return(ERROR);
+		return (ERROR);
 	tmp = queue->front->next;
 	node = queue->front;
 	queue->front = tmp;
@@ -48,53 +60,4 @@ int	dequeue(t_queue *queue)
 		queue->rear = NULL;
 	free(node);
 	return (data);
-}
-
-int	detect_queue_min(t_queue *queue)
-{
-	t_node	*node;
-	int		min;
-
-	if (is_empty_queue(queue))
-		return (ERROR);
-	node = queue->front;
-	min = node->data;
-	while (node)
-	{
-		if (node->data < min)
-			min = node->data;
-		node = node->next;
-	}
-	return (min);
-}
-
-int	pull_specific_data(t_queue *queue, int data)
-{
-	t_node	*node;
-	t_node	*prev;
-	
-	if (is_empty_queue(queue))
-		return (ERROR);
-	node = queue->front;
-	if (node->data == data)
-	{
-		dequeue(queue);
-		return (data);
-	}
-	prev = node;
-	node = node->next;
-	while(node)
-	{
-		if (node->data == data)
-		{
-			prev->next = node->next;
-			if (node->next == NULL)
-				queue->rear = prev;
-			free(node);
-			return (data);
-		}
-		prev = node;
-		node = node->next;
-	}
-	return (ERROR);
 }

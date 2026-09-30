@@ -2,11 +2,14 @@ NAME	= codexion
 CC 		= cc
 CFLAGS 	= -Wall -Wextra -Werror -pthread -I includes
 SRCS 	= src/coder.c\
+		  src/coder2.c\
 		  src/main.c\
+		  src/main2.c\
 		  src/monitor.c\
 		  src/parse.c\
 		  utils/utils1.c\
-		  utils/utils2_queue.c
+		  utils/utils2_queue.c\
+		  utils/utils3_queue.c
 OBJS 	= $(SRCS:.c=.o)
 
 all: $(NAME)
@@ -26,5 +29,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-
-

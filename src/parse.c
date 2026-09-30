@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tsugimot <tsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/30 19:31:09 by tsugimot          #+#    #+#             */
+/*   Updated: 2026/09/30 19:31:11 by tsugimot         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 int	is_valid_numbers(char **av)
 {
-	int i;
+	int	i;
 	int	j;
 
 	j = 1;
@@ -13,7 +25,7 @@ int	is_valid_numbers(char **av)
 			return (ERROR);
 		if (av[j][i] == '+')
 			i++;
-		while(av[j][i] != '\0')
+		while (av[j][i] != '\0')
 		{
 			if (av[j][i] < '0' || av[j][i] > '9')
 				return (ERROR);

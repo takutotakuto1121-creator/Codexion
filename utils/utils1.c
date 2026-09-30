@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils1.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tsugimot <tsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/30 19:31:16 by tsugimot          #+#    #+#             */
+/*   Updated: 2026/09/30 19:31:17 by tsugimot         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 int	ft_strlen(const char *str)
@@ -5,7 +17,7 @@ int	ft_strlen(const char *str)
 	int	i;
 
 	i = 0;
-	while(str[i])
+	while (str[i])
 		i++;
 	return (i);
 }
@@ -24,7 +36,7 @@ char	*ft_strcpy(char *dest, char *src)
 	int	i;
 
 	i = 0;
-	while(src[i])
+	while (src[i])
 	{
 		dest[i] = src[i];
 		i++;
@@ -47,7 +59,7 @@ int	get_id_close_to_burnout(t_coder *coder)
 	t_node		*node;
 	t_coder		*coders;
 	int			id;
-	long long	oldest_time;
+	long long	old_time;
 
 	if (is_empty_queue(coder->args->queue))
 		return (ERROR);
@@ -55,13 +67,12 @@ int	get_id_close_to_burnout(t_coder *coder)
 	queue = coders->args->queue;
 	node = queue->front;
 	id = node->data;
-	oldest_time = coders[id - 1].last_time_compiled;
-
+	old_time = coders[id - 1].last_time_compiled;
 	while (node)
 	{
-		if (coders[node->data - 1].last_time_compiled < oldest_time)
+		if (coders[node->data - 1].last_time_compiled < old_time)
 		{
-			oldest_time = coders[node->data - 1].last_time_compiled;
+			old_time = coders[node->data - 1].last_time_compiled;
 			id = node->data;
 		}
 		node = node->next;
