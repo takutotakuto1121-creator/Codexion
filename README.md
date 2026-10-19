@@ -66,7 +66,11 @@ make
 具体的な対策方法の例は、[この記事](https://qiita.com/gts/items/11a113cbb3eef893d9fe)がわかりやすいので見てください。
 
 
-今回の課題の内容だと、例えば、全コーダーが同時に左のドングルを確保した状態で、右のドングルの空きを待機する状況になったとします。ここから状況でデッドロックが発生します。今回はIDが`number_of_coders`番のコーダーだけは右のドングルを先に確保し、左のドングルを確保するようにし、それ以外のコーダーは左にドングルを先に確保するという実装にすることにより、循環待機の条件を崩し、相解決しました。
+今回の課題の内容だと、デッドロックが発生し得る箇所は２箇所あります。
+
+１つめ。全コーダーが同時に左のドングルを確保した状態で、右のドングルの空きを待機する状況になったとします。ここから状況でデッドロックが発生します。今回はIDが`number_of_coders`番のコーダーだけは右のドングルを先に確保し、左のドングルを確保するようにし、それ以外のコーダーは左にドングルを先に確保するという実装にすることにより、循環待機の条件を崩し、相解決しました。
+
+２つめ。コーダーの数が１のとき、`take_dongle_fifo`, `take_dongle_edf`内の、`left`, `right`が同じ値になってしまいます。これにより、`wait_and_lock_dongles`でドングルを確保する際に、rightとleftで同一のドングルを確保しようとしてしまい、ここでデッドロックが発生します。`number_of_coders`が１のときは例外として特別に処理することにより、これを解決しました。
 
 ## Thread synchronization mechanisms
 スレッドはメインのスレッドに追加で、コーダー各1人につき一つ、モニターで１つ追加で使用しています。
@@ -160,7 +164,11 @@ Conversely, if even one of these conditions is broken, a deadlock will not occur
 
 For clear examples of specific countermeasures, please refer to [this article](https://qiita.com/gts/items/11a113cbb3eef893d9fe).
 
-In the context of this assignment, suppose a situation arises where all coders simultaneously secure their left dongle and wait for their right dongle to become available. A deadlock occurs from this situation. We resolved the issue by breaking the "Circular Wait" condition. We implemented a solution where only the coder with the ID `number_of_coders` secures the right dongle first and then the left one, while all other coders secure their left dongle first.
+In the context of this assignment, there are two places where a deadlock can occur.
+
+First: Suppose a situation where all coders simultaneously acquire their left dongle and wait for their right dongle to become available. A deadlock occurs from this state. We resolved this by breaking the circular wait condition: we implemented it so that only the coder with the ID `number_of_coders` acquires the right dongle first and then the left dongle, while all other coders acquire their left dongle first.
+
+Second: When the number of coders is 1, the left and right values inside `take_dongle_fifo` and `take_dongle_edf` end up being the same. As a result, when attempting to acquire the dongles in `wait_and_lock_dongles`, the program tries to lock the exact same dongle for both right and left, which causes a deadlock. We resolved this by treating the case where `number_of_coders` is 1 as a special exception and handling it separately.
 
 ## Thread synchronization mechanisms
 In addition to the main thread, the program uses one thread per coder and one additional thread for monitoring.

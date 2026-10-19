@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsugimot <tsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: tsugimot <tsugimot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 19:30:51 by tsugimot          #+#    #+#             */
-/*   Updated: 2026/09/30 19:30:53 by tsugimot         ###   ########.fr       */
+/*   Updated: 2026/10/19 19:03:56 by tsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ int	main(int ac, char **av)
 		return (ERROR);
 	}
 	codexion(args);
+	free(args->queue);
 	free(args);
 	return (0);
 }

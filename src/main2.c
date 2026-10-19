@@ -6,7 +6,7 @@
 /*   By: tsugimot <tsugimot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 19:30:57 by tsugimot          #+#    #+#             */
-/*   Updated: 2026/10/19 16:43:57 by tsugimot         ###   ########.fr       */
+/*   Updated: 2026/10/19 19:07:58 by tsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ void	init_dongles(t_dongle *dongle, t_args *args)
 	while (i < args->number_of_coders)
 	{
 		dongle[i].id = i + 1;
+		dongle[i].cooldown_until = 0;
 		pthread_mutex_init(&dongle[i].lock, NULL);
 		i++;
 	}

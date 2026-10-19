@@ -6,7 +6,7 @@
 /*   By: tsugimot <tsugimot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 19:30:31 by tsugimot          #+#    #+#             */
-/*   Updated: 2026/10/19 18:10:30 by tsugimot         ###   ########.fr       */
+/*   Updated: 2026/10/19 19:08:58 by tsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,12 @@ void	wait_and_lock_dongles(t_coder *coder, int left, int right)
 	long long	now;
 
 	now = get_current_time_ms();
-	if (now < coder->dongle[left].cooldown_until) // cooldown_untilが初期化されていない。
+	if (now < coder->dongle[left].cooldown_until)
 		usleep((coder->dongle[left].cooldown_until - now) * 1000);
 	now = get_current_time_ms();
 	if (now < coder->dongle[right].cooldown_until)
 		usleep((coder->dongle[right].cooldown_until - now) * 1000);
-	if (coder->id == coder->args->number_of_coders)
+	else if (coder->id == coder->args->number_of_coders)
 	{
 		pthread_mutex_lock(&coder->dongle[right].lock);
 		print_status(coder, "has taken a dongle", &coder->args->print_lock);

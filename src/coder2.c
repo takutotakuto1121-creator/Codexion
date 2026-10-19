@@ -6,7 +6,7 @@
 /*   By: tsugimot <tsugimot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 19:30:42 by tsugimot          #+#    #+#             */
-/*   Updated: 2026/10/19 17:45:43 by tsugimot         ###   ########.fr       */
+/*   Updated: 2026/10/19 18:55:08 by tsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,13 +50,25 @@ static int	coder_loop_body(t_coder *coder)
 	free_dongle(coder);
 	if (coder->args->is_finished)
 		return (1);
-	print_status(coder, "is_debugging", &coder->args->print_lock);
+	print_status(coder, "is debugging", &coder->args->print_lock);
 	usleep(coder->args->time_to_debug * 1000);
 	if (coder->args->is_finished)
 		return (1);
-	print_status(coder, "is_refactoring", &coder->args->print_lock);
+	print_status(coder, "is refactoring", &coder->args->print_lock);
 	usleep(coder->args->time_to_refactor * 1000);
 	return (0);
+}
+
+static int	coder_num_1(t_coder *coder)
+{
+	if (coder->args->number_of_coders != 1)
+		return (0);
+	print_status(coder, "has taken a dongle", &coder->args->print_lock);
+	while (1)
+	{
+		if (coder->args->is_finished)
+			return (1);
+	}
 }
 
 void	*coder_routine(void *arg)
@@ -65,6 +77,8 @@ void	*coder_routine(void *arg)
 
 	coder = (t_coder *)arg;
 	coder->last_time_compiled = get_current_time_ms();
+	if (coder_num_1(coder))
+		return (NULL);
 	while (!coder->args->is_finished)
 	{
 		if (coder_loop_body(coder))
