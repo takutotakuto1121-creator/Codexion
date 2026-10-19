@@ -12,11 +12,11 @@ Codexionは42cursusのMilestone3のソロ課題です。有名問題である、
 5. `time_to_refactor`: コーダーがリファクタリングするのにかかる時間。単位はmilliseconds。
 6. `number_of_compiles_required`: 全てのコーダーが少なくとも`number_of_compiles_required`回コンパイルすると、プトグラムは終了する。
 7. `dongle_cooldown`: ドングルのクールダウンにかかる時間。単位はmilliseconds。
-8. `scheduler` : fifoあるいはedfが入る。複数のコーダーが同時に同じドングルを取りたい状況になった際のルールの指定。  
-fifo: 最も早くドングルを取れる状態になっていたコーダーが優先。  
+8. `scheduler` : fifoあるいはedfが入る。複数のコーダーが同時に同じドングルを取りたい状況になった際のルールの指定。
+fifo: 最も早くドングルを取れる状態になっていたコーダーが優先。
 edf: burnoutまでの時間が最も短いコーダーが優先。
 
-それぞれのコーダーは1から`number_of_coders`までのIDを持ちます。IDが１番のコーダーはIDが`number_of_coders`番のコーダーの隣に座ります。IDがN番のコーダーはN-1番とN + 1番のコーダーの間に座ります。  
+それぞれのコーダーは1から`number_of_coders`までのIDを持ちます。IDが１番のコーダーはIDが`number_of_coders`番のコーダーの隣に座ります。IDがN番のコーダーはN-1番とN + 1番のコーダーの間に座ります。
 ログは以下のような形式で標準出力に出力されます。
 ```bash
 # <時間>　<ID> <動作>
@@ -53,7 +53,20 @@ make
 ```
 
 ## Blocking cases handled
-デッドロックの対策方法を記述する。この部分がこの課題の本質である。例えば、全コーダーが同時に左のドングルを確保した状態で、右のドングルの空きを待機する状況になったとします。ここから状況は動くことがなく無限ループにハマってしまいます。これをデッドロックといいます。デッドロックの解消方法は調べればいくらでも出てきますが、今回はIDが`number_of_coders`番のコーダーだけは右のドングルを先に確保し、左のドングルを確保するようにし、それ以外のコーダーは左にドングルを先に確保するという実装にすることにより解決しました。
+### デッドロックが起きる4条件
+デッドロックは、次の４つの条件が全て同時にみたされたときのみにはっせいします。これはコフマン条件と呼ばれています。
+
+1. 相互排除(Mutual Exclusion): リソースは同時に１つの処理しか使えない
+2. 保持しながら待機(Hold and Wait): あるリソースを持ったまま、別のリソースの開放を待つ
+3. 横取り不可(No Preemption): 他の処理が持っているリソースを強制的に奪えない
+4. 循環待機(Circular Wait): 複数の処理が環状に、お互いのリソースを待ち合っている。
+
+逆に、この内のどれか１つでも崩せば、デッドロックは発生しません。
+
+具体的な対策方法の例は、[この記事](https://qiita.com/gts/items/11a113cbb3eef893d9fe)がわかりやすいので見てください。
+
+
+今回の課題の内容だと、例えば、全コーダーが同時に左のドングルを確保した状態で、右のドングルの空きを待機する状況になったとします。ここから状況でデッドロックが発生します。今回はIDが`number_of_coders`番のコーダーだけは右のドングルを先に確保し、左のドングルを確保するようにし、それ以外のコーダーは左にドングルを先に確保するという実装にすることにより、循環待機の条件を崩し、相解決しました。
 
 ## Thread synchronization mechanisms
 スレッドはメインのスレッドに追加で、コーダー各1人につき一つ、モニターで１つ追加で使用しています。
@@ -73,12 +86,13 @@ make
 ### 使用した技術
 pthredライブラリを使用しています。[memo](memo.md)に列挙されているような関数を使用しています。メモなので可読性は勘弁。
 ### AIの使用
-コードの基盤は全て手書きで実装しています。AIは使用していません。   
+コードの基盤は全て手書きで実装しています。AIは使用していません。
 norminette(42のコーディング規約)エラーの解消にはAIを使用しました。Milestone3の課題なので、この部分は本質ではないからです。また、README.mdの日本語verは手書きで記述しましたが、English ver.はAIに日本語ver.を翻訳させることにより作成しました。
 
 ### 参考文献
-[C言語でのマルチスレッドの解説](https://daeudaeu.com/multithread/).  
-[剰余演算により配列に循環的にアクセスする方法](https://www.cc.kyoto-su.ac.jp/~yamada/ap/cyclicIndex.html).  
+[C言語でのマルチスレッドの解説](https://daeudaeu.com/multithread/).
+[剰余演算により配列に循環的にアクセスする方法](https://www.cc.kyoto-su.ac.jp/~yamada/ap/cyclicIndex.html).
+[デッドロックの仕組みを丁寧の解説](https://qiita.com/gts/items/11a113cbb3eef893d9fe)
 
 # Codexion (English ver.)
 ## Description
@@ -94,11 +108,11 @@ The program takes the following information as arguments:
 5. `time_to_refactor`: The time it takes for a coder to refactor. The unit is in milliseconds.
 6. `number_of_compiles_required`: If all coders have compiled at least `number_of_compiles_required` times, the program will terminate.
 7. `dongle_cooldown`: The time it takes for a dongle to cool down. The unit is in milliseconds.
-8. `scheduler`: Either `fifo` or `edf`. Specifies the rule applied when multiple coders want to acquire the same dongle at the same time.  
-   - `fifo` (First-In, First-Out): Prioritizes the coder who became ready to acquire the dongle first.  
+8. `scheduler`: Either `fifo` or `edf`. Specifies the rule applied when multiple coders want to acquire the same dongle at the same time.
+   - `fifo` (First-In, First-Out): Prioritizes the coder who became ready to acquire the dongle first.
    - `edf` (Earliest Deadline First): Prioritizes the coder with the shortest time left until burnout.
 
-Each coder is assigned an ID ranging from 1 to `number_of_coders`. Coder No. 1 sits next to Coder No. `number_of_coders`. Coder No. N sits between Coder No. N-1 and Coder No. N+1.  
+Each coder is assigned an ID ranging from 1 to `number_of_coders`. Coder No. 1 sits next to Coder No. `number_of_coders`. Coder No. N sits between Coder No. N-1 and Coder No. N+1.
 Logs are output to the standard output in the following format:
 ```bash
 # <timestamp_in_ms> <ID> <action>
@@ -135,7 +149,18 @@ Execute the program. The arguments from left to right correspond to items 1 thro
 ```
 
 ## Blocking cases handled
-This section describes the strategy to prevent deadlocks, which is the core challenge of this project. For instance, imagine a scenario where all coders simultaneously acquire their left dongle and wait for their right dongle to become available. The situation will not progress, resulting in an infinite loop. This is known as a deadlock. There are countless ways to resolve deadlocks if you look them up, but for this project, I resolved it by implementing a rule where only the coder with the ID `number_of_coders` acquires their right dongle first, followed by the left dongle. All other coders acquire their left dongle first.
+A deadlock occurs only when the following four conditions are met simultaneously. These are known as the Coffman conditions:
+
+1. **Mutual Exclusion:** A resource can only be used by one process at a time.
+2. **Hold and Wait:** A process holds a resource while waiting for another resource to be released.
+3. **No Preemption:** A resource held by another process cannot be forcibly taken away.
+4. **Circular Wait:** Multiple processes are waiting for each other's resources in a circular chain.
+
+Conversely, if even one of these conditions is broken, a deadlock will not occur.
+
+For clear examples of specific countermeasures, please refer to [this article](https://qiita.com/gts/items/11a113cbb3eef893d9fe).
+
+In the context of this assignment, suppose a situation arises where all coders simultaneously secure their left dongle and wait for their right dongle to become available. A deadlock occurs from this situation. We resolved the issue by breaking the "Circular Wait" condition. We implemented a solution where only the coder with the ID `number_of_coders` secures the right dongle first and then the left one, while all other coders secure their left dongle first.
 
 ## Thread synchronization mechanisms
 In addition to the main thread, the program uses one thread per coder and one additional thread for monitoring.
@@ -157,22 +182,10 @@ It repeats the following loop:
 The program uses the `pthread` library. I utilized the functions listed in [memo](memo.md). Please excuse the readability, as it is just a personal memo.
 
 ### Use of AI
-The foundation of the code was entirely written by hand. I did not use AI for the core logic.   
+The foundation of the code was entirely written by hand. I did not use AI for the core logic.
 However, I used AI to resolve `norminette` (42's coding standard) errors, as this is not the core focus of a Milestone 3 project. Additionally, while I wrote the Japanese version of the README.md by hand, this English version was created by having an AI translate the Japanese text.
 
 ### References
-[Explanation of multithreading in C](https://daeudaeu.com/multithread/)  
+[Explanation of multithreading in C](https://daeudaeu.com/multithread/)
 [How to access arrays cyclically using the modulo operator](https://www.cc.kyoto-su.ac.jp/~yamada/ap/cyclicIndex.html)
-
-
-
-
-
-
-
-
-
-
-
-
-
+[explanation of deadlock](https://qiita.com/gts/items/11a113cbb3eef893d9fe)
