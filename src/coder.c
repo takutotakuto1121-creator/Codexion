@@ -6,7 +6,7 @@
 /*   By: tsugimot <tsugimot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 19:30:31 by tsugimot          #+#    #+#             */
-/*   Updated: 2026/10/19 15:45:56 by tsugimot         ###   ########.fr       */
+/*   Updated: 2026/10/19 18:10:30 by tsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	wait_and_lock_dongles(t_coder *coder, int left, int right)
 	long long	now;
 
 	now = get_current_time_ms();
-	if (now < coder->dongle[left].cooldown_until)
+	if (now < coder->dongle[left].cooldown_until) // cooldown_untilが初期化されていない。
 		usleep((coder->dongle[left].cooldown_until - now) * 1000);
 	now = get_current_time_ms();
 	if (now < coder->dongle[right].cooldown_until)
@@ -37,12 +37,16 @@ void	wait_and_lock_dongles(t_coder *coder, int left, int right)
 	if (coder->id == coder->args->number_of_coders)
 	{
 		pthread_mutex_lock(&coder->dongle[right].lock);
+		print_status(coder, "has taken a dongle", &coder->args->print_lock);
 		pthread_mutex_lock(&coder->dongle[left].lock);
+		print_status(coder, "has taken a dongle", &coder->args->print_lock);
 	}
 	else
 	{
 		pthread_mutex_lock(&coder->dongle[left].lock);
+		print_status(coder, "has taken a dongle", &coder->args->print_lock);
 		pthread_mutex_lock(&coder->dongle[right].lock);
+		print_status(coder, "has taken a dongle", &coder->args->print_lock);
 	}
 }
 
@@ -51,7 +55,7 @@ void	take_dongle_fifo(t_coder *coder)
 	int	left;
 	int	right;
 
-	left = coder->id - 1;
+	left = (coder->id - 1) % coder->args->number_of_coders;
 	right = coder->id % coder->args->number_of_coders;
 	pthread_mutex_lock(&coder->args->queue_lock);
 	enqueue(coder->args->queue, coder->id);

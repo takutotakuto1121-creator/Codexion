@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   coder2.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsugimot <tsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: tsugimot <tsugimot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 19:30:42 by tsugimot          #+#    #+#             */
-/*   Updated: 2026/09/30 19:30:47 by tsugimot         ###   ########.fr       */
+/*   Updated: 2026/10/19 17:45:43 by tsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ static int	coder_loop_body(t_coder *coder)
 		free_dongle(coder);
 		return (1);
 	}
-	print_status(coder, "has taken a dongle", &coder->args->print_lock);
 	print_status(coder, "is compiling", &coder->args->print_lock);
 	coder->last_time_compiled = get_current_time_ms();
 	usleep(coder->args->time_to_compile * 1000);

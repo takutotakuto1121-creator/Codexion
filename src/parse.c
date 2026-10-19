@@ -6,7 +6,7 @@
 /*   By: tsugimot <tsugimot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 19:31:09 by tsugimot          #+#    #+#             */
-/*   Updated: 2026/10/19 15:58:24 by tsugimot         ###   ########.fr       */
+/*   Updated: 2026/10/19 17:57:10 by tsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int	is_valid_numbers(char **av)
 
 int	validate_details(t_args *args)
 {
-	if (args->number_of_coders < 2)
+	if (args->number_of_coders < 1)
 	{
 		print_error("number of coders shoule be more than 1\n");
 		return (ERROR);
