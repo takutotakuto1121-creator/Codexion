@@ -12,10 +12,29 @@
 
 #include "codexion.h"
 
+static void	enqueue_initial_order(t_args *args)
+{
+	int	id;
+
+	id = 1;
+	while (id <= args->number_of_coders)
+	{
+		enqueue(args->queue, id);
+		id += 2;
+	}
+	id = 2;
+	while (id <= args->number_of_coders)
+	{
+		enqueue(args->queue, id);
+		id += 2;
+	}
+}
+
 void	init_coders(t_coder *c, t_dongle *d, t_args *args, pthread_t *th)
 {
 	int	i;
 
+	enqueue_initial_order(args);
 	i = 0;
 	while (i < args->number_of_coders)
 	{
@@ -38,7 +57,7 @@ void	init_dongles(t_dongle *dongle, t_args *args)
 	{
 		dongle[i].id = i + 1;
 		dongle[i].cooldown_until = 0;
-		pthread_mutex_init(&dongle[i].lock, NULL);
+		dongle[i].busy = FALSE;
 		i++;
 	}
 }

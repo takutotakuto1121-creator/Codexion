@@ -14,94 +14,68 @@
 
 void	print_status(t_coder *coder, char *status, pthread_mutex_t *mutex)
 {
-	long long	current_time;
-	long long	elapsed_time;
-
-	current_time = get_current_time_ms();
-	elapsed_time = current_time - coder->args->start_time;
 	pthread_mutex_lock(mutex);
-	printf("%lld %d %s\n", elapsed_time, coder->id, status);
+	if (!coder->args->is_finished)
+		printf("%lld %d %s\n", get_current_time_ms() - coder->args->start_time,
+			coder->id, status);
 	pthread_mutex_unlock(mutex);
 }
 
-void	wait_and_lock_dongles(t_coder *coder, int left, int right)
+static int	shares_dongle(t_coder *coder, int other)
 {
+	int	n;
+	int	l1;
+	int	r1;
+
+	n = coder->args->number_of_coders;
+	l1 = coder->id - 1;
+	r1 = coder->id % n;
+	return (l1 == other - 1 || l1 == other % n
+		|| r1 == other - 1 || r1 == other % n);
+}
+
+static int	is_ahead(t_coder *me, int other, int seen_me)
+{
+	t_coder	*o;
+
+	if (strcmp(me->args->scheduler, "fifo") == 0)
+		return (!seen_me);
+	o = me - (me->id - 1) + (other - 1);
+	if (o->last_time_compiled != me->last_time_compiled)
+		return (o->last_time_compiled < me->last_time_compiled);
+	return (!seen_me);
+}
+
+static int	has_rival(t_coder *coder)
+{
+	t_node	*node;
+	int		seen_me;
+
+	node = coder->args->queue->front;
+	seen_me = FALSE;
+	while (node)
+	{
+		if (node->data == coder->id)
+			seen_me = TRUE;
+		else if (shares_dongle(coder, node->data)
+			&& is_ahead(coder, node->data, seen_me))
+			return (TRUE);
+		node = node->next;
+	}
+	return (FALSE);
+}
+
+int	can_take_dongles(t_coder *coder)
+{
+	t_dongle	*left;
+	t_dongle	*right;
 	long long	now;
 
+	left = &coder->dongle[coder->id - 1];
+	right = &coder->dongle[coder->id % coder->args->number_of_coders];
 	now = get_current_time_ms();
-	if (now < coder->dongle[left].cooldown_until)
-		usleep((coder->dongle[left].cooldown_until - now) * 1000);
-	now = get_current_time_ms();
-	if (now < coder->dongle[right].cooldown_until)
-		usleep((coder->dongle[right].cooldown_until - now) * 1000);
-	if (coder->id == coder->args->number_of_coders)
-	{
-		pthread_mutex_lock(&coder->dongle[right].lock);
-		print_status(coder, "has taken a dongle", &coder->args->print_lock);
-		pthread_mutex_lock(&coder->dongle[left].lock);
-		print_status(coder, "has taken a dongle", &coder->args->print_lock);
-	}
-	else
-	{
-		pthread_mutex_lock(&coder->dongle[left].lock);
-		print_status(coder, "has taken a dongle", &coder->args->print_lock);
-		pthread_mutex_lock(&coder->dongle[right].lock);
-		print_status(coder, "has taken a dongle", &coder->args->print_lock);
-	}
-}
-
-void	take_dongle_fifo(t_coder *coder)
-{
-	int	left;
-	int	right;
-
-	left = (coder->id - 1) % coder->args->number_of_coders;
-	right = coder->id % coder->args->number_of_coders;
-	pthread_mutex_lock(&coder->args->queue_lock);
-	enqueue(coder->args->queue, coder->id);
-	pthread_mutex_unlock(&coder->args->queue_lock);
-	while (1)
-	{
-		if (coder->args->is_finished)
-			return ;
-		pthread_mutex_lock(&coder->args->queue_lock);
-		if (!is_empty_queue(coder->args->queue)
-			&& coder->args->queue->front->data == coder->id)
-		{
-			dequeue(coder->args->queue);
-			pthread_mutex_unlock(&coder->args->queue_lock);
-			wait_and_lock_dongles(coder, left, right);
-			return ;
-		}
-		pthread_mutex_unlock(&coder->args->queue_lock);
-		usleep(500);
-	}
-}
-
-void	take_dongle_edf(t_coder *coder)
-{
-	int	left;
-	int	right;
-
-	left = coder->id - 1;
-	right = coder->id % coder->args->number_of_coders;
-	pthread_mutex_lock(&coder->args->queue_lock);
-	enqueue(coder->args->queue, coder->id);
-	pthread_mutex_unlock(&coder->args->queue_lock);
-	while (1)
-	{
-		if (coder->args->is_finished)
-			return ;
-		pthread_mutex_lock(&coder->args->queue_lock);
-		if (!is_empty_queue(coder->args->queue)
-			&& coder->id == get_id_close_to_burnout(coder))
-		{
-			pull_specific_data(coder->args->queue, coder->id);
-			pthread_mutex_unlock(&coder->args->queue_lock);
-			wait_and_lock_dongles(coder, left, right);
-			return ;
-		}
-		pthread_mutex_unlock(&coder->args->queue_lock);
-		usleep(500);
-	}
+	if (left->busy || right->busy
+		|| now < left->cooldown_until || now < right->cooldown_until)
+		return (FALSE);
+	return (!has_rival(coder));
 }

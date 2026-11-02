@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tsugimot <tsugimot@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tsugimot <tsugimot@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 19:31:09 by tsugimot          #+#    #+#             */
-/*   Updated: 2026/10/19 17:57:10 by tsugimot         ###   ########.fr       */
+/*   Updated: 2026/11/02 15:52:10 by tsugimot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,11 @@ int	set_args(t_args *args, char **av)
 	args->time_to_refactor = atoi(av[5]);
 	args->number_of_compiles_required = atoi(av[6]);
 	args->dongle_cooldown = atoi(av[7]);
+	if (ft_strlen(av[8]) >= (int) sizeof(args->scheduler))
+	{
+		print_error("scheduler should be fifo or edf\n");
+		return (ERROR);
+	}
 	ft_strcpy(args->scheduler, av[8]);
 	if (validate_details(args) == ERROR)
 		return (ERROR);

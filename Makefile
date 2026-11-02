@@ -3,6 +3,7 @@ CC 		= cc
 CFLAGS 	= -Wall -Wextra -Werror -pthread -I includes
 SRCS 	= src/coder.c\
 		  src/coder2.c\
+		  src/coder3.c\
 		  src/main.c\
 		  src/main2.c\
 		  src/monitor.c\

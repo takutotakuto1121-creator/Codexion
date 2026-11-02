@@ -22,8 +22,11 @@ static int	check_burnout(t_coder *coders, t_args *args)
 		if ((get_current_time_ms() - coders[i].last_time_compiled)
 			> args->time_to_burn_out)
 		{
+			pthread_mutex_lock(&args->print_lock);
 			args->is_finished = TRUE;
-			print_status(&coders[i], "burned out", &args->print_lock);
+			printf("%lld %d burned out\n",
+				get_current_time_ms() - args->start_time, coders[i].id);
+			pthread_mutex_unlock(&args->print_lock);
 			return (1);
 		}
 		i++;

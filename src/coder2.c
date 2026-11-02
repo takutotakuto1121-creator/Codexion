@@ -12,14 +12,6 @@
 
 #include "codexion.h"
 
-void	take_dongle(t_coder *coder)
-{
-	if (strcmp(coder->args->scheduler, "fifo") == 0)
-		take_dongle_fifo(coder);
-	else if (strcmp(coder->args->scheduler, "edf") == 0)
-		take_dongle_edf(coder);
-}
-
 void	free_dongle(t_coder *coder)
 {
 	int			left;
@@ -29,20 +21,18 @@ void	free_dongle(t_coder *coder)
 	left = coder->id - 1;
 	right = coder->id % coder->args->number_of_coders;
 	now = get_current_time_ms();
+	pthread_mutex_lock(&coder->args->queue_lock);
 	coder->dongle[left].cooldown_until = now + coder->args->dongle_cooldown;
 	coder->dongle[right].cooldown_until = now + coder->args->dongle_cooldown;
-	pthread_mutex_unlock(&coder->dongle[left].lock);
-	pthread_mutex_unlock(&coder->dongle[right].lock);
+	coder->dongle[left].busy = FALSE;
+	coder->dongle[right].busy = FALSE;
+	pthread_mutex_unlock(&coder->args->queue_lock);
 }
 
 static int	coder_loop_body(t_coder *coder)
 {
-	take_dongle(coder);
-	if (coder->args->is_finished)
-	{
-		free_dongle(coder);
+	if (!take_dongle(coder))
 		return (1);
-	}
 	print_status(coder, "is compiling", &coder->args->print_lock);
 	coder->last_time_compiled = get_current_time_ms();
 	usleep(coder->args->time_to_compile * 1000);
@@ -76,7 +66,6 @@ void	*coder_routine(void *arg)
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
-	coder->last_time_compiled = get_current_time_ms();
 	if (coder_num_1(coder))
 		return (NULL);
 	while (!coder->args->is_finished)

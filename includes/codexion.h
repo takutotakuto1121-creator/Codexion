@@ -66,7 +66,7 @@ typedef struct s_dongle
 {
 	int				id;
 	long long		cooldown_until;
-	pthread_mutex_t	lock;
+	int				busy;
 }					t_dongle;
 
 typedef struct s_coder
@@ -85,11 +85,12 @@ int			set_args(t_args *args, char **av);
 
 /* src/coder.c */
 void		print_status(t_coder *coder, char *status, pthread_mutex_t *mutex);
-void		take_dongle_fifo(t_coder *coder);
-void		take_dongle_edf(t_coder *coder);
+int			can_take_dongles(t_coder *coder);
+
+/* src/coder3.c */
+int			take_dongle(t_coder *coder);
 
 /* src/coder2.c */
-void		take_dongle(t_coder *coder);
 void		free_dongle(t_coder *coder);
 void		*coder_routine(void *arg);
 
@@ -118,6 +119,7 @@ int			dequeue(t_queue *queue);
 
 /* utils/utils3_queue.c */
 int			detect_queue_min(t_queue *queue);
+int			is_in_queue(t_queue *queue, int data);
 int			pull_specific_data(t_queue *queue, int data);
 
 #endif

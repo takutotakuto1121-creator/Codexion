@@ -30,6 +30,20 @@ int	detect_queue_min(t_queue *queue)
 	return (min);
 }
 
+int	is_in_queue(t_queue *queue, int data)
+{
+	t_node	*node;
+
+	node = queue->front;
+	while (node)
+	{
+		if (node->data == data)
+			return (TRUE);
+		node = node->next;
+	}
+	return (FALSE);
+}
+
 static int	remove_node(t_queue *q, t_node *p, t_node *n, int d)
 {
 	p->next = n->next;
