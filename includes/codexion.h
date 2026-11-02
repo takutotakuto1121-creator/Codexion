@@ -97,6 +97,8 @@ void		*coder_routine(void *arg);
 /* src/main2.c */
 void		init_coders(t_coder *c, t_dongle *d, t_args *args, pthread_t *th);
 void		init_dongles(t_dongle *dongle, t_args *args);
+int			init_sync(t_args *args);
+void		free_all(t_coder *c, t_dongle *d, pthread_t *th);
 
 /* src/main.c */
 int			codexion(t_args *args);
@@ -116,6 +118,7 @@ void		init_queue(t_queue *queue);
 int			is_empty_queue(t_queue *queue);
 void		enqueue(t_queue *queue, int data);
 int			dequeue(t_queue *queue);
+void		free_queue(t_queue *queue);
 
 /* utils/utils3_queue.c */
 int			detect_queue_min(t_queue *queue);

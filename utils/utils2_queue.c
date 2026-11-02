@@ -61,3 +61,12 @@ int	dequeue(t_queue *queue)
 	free(node);
 	return (data);
 }
+
+void	free_queue(t_queue *queue)
+{
+	if (!queue)
+		return ;
+	while (!is_empty_queue(queue))
+		dequeue(queue);
+	free(queue);
+}

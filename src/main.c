@@ -53,22 +53,22 @@ int	codexion(t_args *args)
 	t_dongle	*dongle;
 	pthread_t	*threads;
 
+	args->queue = NULL;
 	if (init_resources(args, &coder, &dongle, &threads) == ERROR)
 		return (ERROR);
-	pthread_mutex_init(&args->print_lock, NULL);
-	pthread_mutex_init(&args->queue_lock, NULL);
-	args->queue = malloc(sizeof(t_queue));
-	init_queue(args->queue);
-	args->start_time = get_current_time_ms();
-	args->is_finished = FALSE;
+	if (init_sync(args) == ERROR)
+	{
+		free_all(coder, dongle, threads);
+		return (ERROR);
+	}
 	init_dongles(dongle, args);
 	init_coders(coder, dongle, args, threads);
 	pthread_create(&threads[args->number_of_coders], NULL,
 		monitor_routine, coder);
 	join_all_threads(args, threads);
-	free(coder);
-	free(dongle);
-	free(threads);
+	pthread_mutex_destroy(&args->print_lock);
+	pthread_mutex_destroy(&args->queue_lock);
+	free_all(coder, dongle, threads);
 	return (0);
 }
 
@@ -82,13 +82,15 @@ int	main(int ac, char **av)
 		return (ERROR);
 	}
 	args = (t_args *)malloc(sizeof(t_args));
+	if (!args)
+		return (ERROR);
 	if (set_args(args, av) == ERROR)
 	{
 		free(args);
 		return (ERROR);
 	}
 	codexion(args);
-	free(args->queue);
+	free_queue(args->queue);
 	free(args);
 	return (0);
 }

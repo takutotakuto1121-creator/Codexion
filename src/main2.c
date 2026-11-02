@@ -61,3 +61,23 @@ void	init_dongles(t_dongle *dongle, t_args *args)
 		i++;
 	}
 }
+
+void	free_all(t_coder *c, t_dongle *d, pthread_t *th)
+{
+	free(c);
+	free(d);
+	free(th);
+}
+
+int	init_sync(t_args *args)
+{
+	args->queue = malloc(sizeof(t_queue));
+	if (!args->queue)
+		return (ERROR);
+	pthread_mutex_init(&args->print_lock, NULL);
+	pthread_mutex_init(&args->queue_lock, NULL);
+	init_queue(args->queue);
+	args->start_time = get_current_time_ms();
+	args->is_finished = FALSE;
+	return (0);
+}
