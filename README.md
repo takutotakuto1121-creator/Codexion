@@ -67,7 +67,7 @@ For clear examples of specific countermeasures, please refer to [this article](h
 
 In the context of this assignment, there are two places where a deadlock can occur.
 
-First: Suppose a situation where all coders simultaneously acquire their left dongle and wait for their right dongle to become available. A deadlock occurs from this state. We resolved this by breaking the circular wait condition: we implemented it so that only the coder with the ID `number_of_coders` acquires the right dongle first and then the left dongle, while all other coders acquire their left dongle first.
+First: Suppose a situation where all coders simultaneously acquire their left dongle and wait for their right dongle to become available. A deadlock occurs from this state. We resolved this by breaking the　Hold and wait: we implemented it so that only the coder with the ID `number_of_coders` acquires the right dongle first and then the left dongle, while all other coders acquire their left dongle first.
 
 Second: When the number of coders is 1, the left and right values inside `take_dongle_fifo` and `take_dongle_edf` end up being the same. As a result, when attempting to acquire the dongles in `wait_and_lock_dongles`, the program tries to lock the exact same dongle for both right and left, which causes a deadlock. We resolved this by treating the case where `number_of_coders` is 1 as a special exception and handling it separately.
 
